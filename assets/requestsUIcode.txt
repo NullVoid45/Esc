@@ -1,0 +1,306 @@
+// RequestsScreen.js
+import React from "react";
+import {
+  SafeAreaView,
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  StatusBar,
+  Platform,
+} from "react-native";
+import { MaterialCommunityIcons, Ionicons, FontAwesome5 } from "@expo/vector-icons";
+
+/**
+ * Requirements:
+ *  - expo install @expo/vector-icons
+ *
+ * Use like:
+ * <RequestsScreen />
+ */
+
+const DATA = [
+  {
+    id: "1",
+    name: "Naveen Sharma",
+    roll: "20BCS1024",
+    status: "Approved",
+    statusColor: "#2DBE57",
+    date: "Oct 24, 2023",
+    icon: "check-circle",
+    iconBg: "#DFF7E9",
+    iconColor: "#2DBE57",
+  },
+  {
+    id: "2",
+    name: "Priya Singh",
+    roll: "21BME1109",
+    status: "Pending",
+    statusColor: "#E89500",
+    date: "Oct 24, 2023",
+    icon: "hourglass",
+    iconBg: "#FFF4D9",
+    iconColor: "#E89500",
+  },
+  {
+    id: "3",
+    name: "Rohan Mehta",
+    roll: "19BCE1055",
+    status: "Rejected",
+    statusColor: "#E03B3B",
+    date: "Oct 23, 2023",
+    icon: "times-circle",
+    iconBg: "#FFECEC",
+    iconColor: "#E03B3B",
+  },
+  {
+    id: "4",
+    name: "Anjali Gupta",
+    roll: "22BEE1120",
+    status: "Pending",
+    statusColor: "#E89500",
+    date: "Oct 23, 2023",
+    icon: "hourglass",
+    iconBg: "#FFF4D9",
+    iconColor: "#E89500",
+  },
+  {
+    id: "5",
+    name: "Vikram Rathore",
+    roll: "20BCS1088",
+    status: "Approved",
+    statusColor: "#2DBE57",
+    date: "Oct 22, 2023",
+    icon: "check-circle",
+    iconBg: "#DFF7E9",
+    iconColor: "#2DBE57",
+  },
+];
+
+function RequestItem({ item }) {
+  return (
+    <View style={styles.card}>
+      <View style={styles.cardRow}>
+        {/* Left icon circle */}
+        <View style={[styles.iconCircle, { backgroundColor: item.iconBg }]}>
+          {/* choose an icon - using FontAwesome5 / MaterialCommunityIcons */}
+          {/* Using FontAwesome5 icons names: check-circle, times-circle, hourglass */}
+          <FontAwesome5 name={item.icon} size={20} color={item.iconColor} />
+        </View>
+
+        {/* Middle text */}
+        <View style={styles.middle}>
+          <Text style={styles.nameText}>{item.name}</Text>
+          <Text style={styles.rollText}>Roll No: {item.roll}</Text>
+        </View>
+
+        {/* Right status */}
+        <View style={styles.right}>
+          <Text style={[styles.statusText, { color: item.statusColor }]}>
+            {item.status}
+          </Text>
+          <Text style={styles.dateText}>{item.date}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+export default function RequestsScreen() {
+  return (
+    <SafeAreaView style={styles.safe}>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor={styles.safe.backgroundColor}
+      />
+
+      {/* Top-left tiny cog (as in screenshot) and title */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.cogButton} activeOpacity={0.7}>
+          <MaterialCommunityIcons name="cog-outline" size={28} color="#7B8A97" />
+        </TouchableOpacity>
+
+        <Text style={styles.title}>Requests</Text>
+
+        {/* placeholder to keep title centered */}
+        <View style={styles.cogButton} />
+      </View>
+
+      {/* List container */}
+      <FlatList
+        data={DATA}
+        keyExtractor={(i) => i.id}
+        renderItem={({ item }) => <RequestItem item={item} />}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+      />
+
+      {/* Bottom Tab Bar */}
+      <View style={styles.tabBar}>
+        <TouchableOpacity style={styles.tabItem} activeOpacity={0.8}>
+          <View style={styles.tabIconWrapper}>
+            <View style={styles.tabIconBg}>
+              <MaterialCommunityIcons name="format-list-checkbox" size={20} color="#14C16D" />
+            </View>
+          </View>
+          <Text style={[styles.tabLabel, { color: "#14C16D" }]}>Requests</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.tabItem} activeOpacity={0.8}>
+          <View style={styles.tabIconWrapper}>
+            <MaterialCommunityIcons name="qrcode-scan" size={22} color="#73818B" />
+          </View>
+          <Text style={[styles.tabLabel, { color: "#73818B" }]}>QR Scanner</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: "#F5F7F8", // light grey background like screenshot
+  },
+  header: {
+    height: 120,
+    paddingHorizontal: 18,
+    // top spacing similar to screenshot
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cogButton: {
+    position: "absolute",
+    left: 18,
+    top: 36,
+    width: 36,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    marginTop: 36,
+    fontSize: 36,
+    fontWeight: "800",
+    color: "#24303A", // dark bluish
+  },
+
+  listContent: {
+    paddingHorizontal: 18,
+    paddingBottom: 160, // keep space for tab bar
+  },
+
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 6,
+    // subtle shadow
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+    paddingVertical: 18,
+    paddingHorizontal: 18,
+    marginBottom: 16,
+  },
+
+  cardRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  iconCircle: {
+    width: 58,
+    height: 58,
+    borderRadius: 58 / 2,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 18,
+  },
+
+  middle: {
+    flex: 1,
+    justifyContent: "center",
+  },
+
+  nameText: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#24303A",
+    marginBottom: 6,
+  },
+
+  rollText: {
+    color: "#8C97A0",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  right: {
+    width: 110,
+    alignItems: "flex-end",
+    justifyContent: "center",
+  },
+
+  statusText: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+
+  dateText: {
+    fontSize: 13,
+    color: "#9AA6AE",
+    fontWeight: "600",
+  },
+
+  /* Bottom Tab Bar */
+  tabBar: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 110,
+    borderTopWidth: 1,
+    borderTopColor: "#E8ECEF",
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 36,
+    paddingTop: 14,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+
+  tabItem: {
+    alignItems: "center",
+  },
+
+  tabIconWrapper: {
+    width: 52,
+    height: 52,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+
+  tabIconBg: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: "#E9F9F0", // greenish bg for selected
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  tabLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+});
