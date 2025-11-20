@@ -1,32 +1,12 @@
 import { useState } from 'react';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-import { StyleSheet, View, Button, TouchableOpacity } from 'react-native';
-import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { Link } from 'expo-router';
-=======
-import { StyleSheet, View, Button, TouchableOpacity, SafeAreaView, StatusBar, Text, Platform, Alert } from 'react-native';
+import { StyleSheet, View, Button, TouchableOpacity, SafeAreaView, StatusBar, Text, Alert } from 'react-native';
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { router } from 'expo-router';
->>>>>>> Stashed changes
-=======
-import { StyleSheet, View, Button, TouchableOpacity, SafeAreaView, StatusBar, Text, Platform, Alert } from 'react-native';
-import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { router } from 'expo-router';
->>>>>>> Stashed changes
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
 import apiClient from '@/api/client';
->>>>>>> Stashed changes
-=======
-import apiClient from '@/api/client';
->>>>>>> Stashed changes
 
 export default function QrScreen() {
   const colorScheme = useColorScheme();
@@ -40,46 +20,6 @@ export default function QrScreen() {
 
   if (!permission.granted) {
     return (
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      <ThemedView style={styles.container}>
-        <ThemedText style={{ textAlign: 'center' }}>We need your permission to show the camera</ThemedText>
-        <Button onPress={requestPermission} title="grant permission" />
-      </ThemedView>
-    );
-  }
-
-  const handleBarCodeScanned = (event: BarcodeScanningResult) => {
-    setScanned(true);
-    setText(event.data);
-    console.log(`Data: ${event.data}`);
-  };
-
-  return (
-    <ThemedView style={styles.container}>
-      <Link href="/Settings" asChild>
-        <TouchableOpacity style={styles.SettingsContainer}>
-          <IconSymbol name="gear" size={28} color={Colors[colorScheme ?? 'light'].text} />
-        </TouchableOpacity>
-      </Link>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title" style={{ fontFamily: Fonts.rounded, fontWeight: 'bold' }}>
-         QR Scanner
-        </ThemedText>
-      </ThemedView>
-      <View style={styles.barcodebox}>
-        <CameraView
-          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-          style={StyleSheet.absoluteFillObject}
-        />
-      </View>
-      <ThemedText style={styles.maintext}>{text}</ThemedText>
-
-      {scanned && <Button title={'Scan Again'} onPress={() => setScanned(false)} />}
-    </ThemedView>
-=======
-=======
->>>>>>> Stashed changes
       <SafeAreaView style={[styles.safe, { backgroundColor: Colors[colorScheme ?? 'light'].background }]}>
         <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
 
@@ -152,20 +92,10 @@ export default function QrScreen() {
         {scanned && <Button title={'Scan Again'} onPress={() => setScanned(false)} />}
       </View>
     </SafeAreaView>
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   );
 }
 
 const styles = StyleSheet.create({
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  container: {
-=======
-=======
->>>>>>> Stashed changes
   safe: {
     flex: 1,
   },
@@ -198,30 +128,11 @@ const styles = StyleSheet.create({
 
   /* Camera container */
   cameraContainer: {
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
   },
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  titleContainer: {
-    position: 'absolute',
-    top: 67,
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 5,
-  },
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   barcodebox: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -234,27 +145,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     margin: 20,
   },
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  SettingsContainer: {
-    position: 'absolute',
-    top: 70,
-    left: 20,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    zIndex: 10,
-=======
-=======
->>>>>>> Stashed changes
 
   permissionContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   }
 });

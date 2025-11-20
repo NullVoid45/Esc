@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const config = {
-  PORT: process.env.PORT || 4000,
+  PORT: process.env.PORT || 8081,
   MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/hitam_outpass',
   JWT_SECRET: process.env.JWT_SECRET || 'default_jwt_secret_change_in_production',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',

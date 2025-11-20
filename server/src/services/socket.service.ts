@@ -1,6 +1,6 @@
 import { Server as SocketServer } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import { config } from './config';
+import { config } from '../config';
 
 export class SocketService {
   private io: SocketServer;
@@ -54,5 +54,10 @@ export class SocketService {
   // Broadcast to all clients
   broadcast(event: string, data: any) {
     this.io.emit(event, data);
+  }
+
+  // Emit to related users (for now, broadcast globally)
+  emitToRelatedUsers(event: string, data: any) {
+    this.broadcast(event, data);
   }
 }

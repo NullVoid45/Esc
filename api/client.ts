@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 class ApiClient {
   private baseURL: string;
 
-  constructor(baseURL: string = 'http://localhost:4000/api') {
+  constructor(baseURL: string = 'http://192.168.0.101:8081/api') {
     this.baseURL = baseURL;
   }
 

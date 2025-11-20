@@ -1,13 +1,5 @@
-import { StyleSheet, TouchableOpacity, FlatList, SafeAreaView, StatusBar, Platform, View, Text } from 'react-native';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-import { useMemo, useState } from 'react';
-=======
-import { useMemo, useState, useEffect } from 'react';
->>>>>>> Stashed changes
-=======
-import { useMemo, useState, useEffect } from 'react';
->>>>>>> Stashed changes
+import { StyleSheet, TouchableOpacity, FlatList, SafeAreaView, StatusBar, Platform, View, Text, Animated } from 'react-native';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { router } from 'expo-router';
 import { PanGestureHandler, TapGestureHandler, State } from 'react-native-gesture-handler';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -15,105 +7,18 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 
 import { Colors, Fonts } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-
-const DATA = [
-  {
-    id: "1",
-    name: "Naveen Sharma",
-    roll: "20BCS1024",
-    status: "Approved",
-    statusColor: "#2DBE57",
-    date: "Oct 24, 2023",
-    icon: "check-circle",
-    iconBg: "#DFF7E9",
-    iconColor: "#2DBE57",
-    reason: "Medical appointment",
-    parentNumber: "+91 9876543210",
-    studentNumber: "+91 9876543211",
-  },
-  {
-    id: "2",
-    name: "Priya Singh",
-    roll: "21BME1109",
-    status: "Pending",
-    statusColor: "#E89500",
-    date: "Oct 24, 2023",
-    icon: "hourglass",
-    iconBg: "#FFF4D9",
-    iconColor: "#E89500",
-    reason: "Family emergency",
-    parentNumber: "+91 9876543212",
-    studentNumber: "+91 9876543213",
-  },
-  {
-    id: "3",
-    name: "Rohan Mehta",
-    roll: "19BCE1055",
-    status: "Rejected",
-    statusColor: "#E03B3B",
-    date: "Oct 23, 2023",
-    icon: "times-circle",
-    iconBg: "#FFECEC",
-    iconColor: "#E03B3B",
-    reason: "Insufficient documentation",
-    parentNumber: "+91 9876543214",
-    studentNumber: "+91 9876543215",
-  },
-  {
-    id: "4",
-    name: "Anjali Gupta",
-    roll: "22BEE1120",
-    status: "Pending",
-    statusColor: "#E89500",
-    date: "Oct 23, 2023",
-    icon: "hourglass",
-    iconBg: "#FFF4D9",
-    iconColor: "#E89500",
-    reason: "Personal leave",
-    parentNumber: "+91 9876543216",
-    studentNumber: "+91 9876543217",
-  },
-  {
-    id: "5",
-    name: "Vikram Rathore",
-    roll: "20BCS1088",
-    status: "Approved",
-    statusColor: "#2DBE57",
-    date: "Oct 22, 2023",
-    icon: "check-circle",
-    iconBg: "#DFF7E9",
-    iconColor: "#2DBE57",
-    reason: "Sports event",
-    parentNumber: "+91 9876543218",
-    studentNumber: "+91 9876543219",
-  },
-];
-
-// Function to collect additional info
-const getAdditionalInfo = (id: string) => {
-  const item = DATA.find(d => d.id === id);
-  return item ? { reason: item.reason, parentNumber: item.parentNumber, studentNumber: item.studentNumber } : null;
-};
-=======
 import { getRequests, getAdditionalInfo } from '@/api/requests';
->>>>>>> Stashed changes
-=======
-import { getRequests, getAdditionalInfo } from '@/api/requests';
->>>>>>> Stashed changes
+import socketClient from '@/api/socket';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function RequestsScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const [expandedId, setExpandedId] = useState<string | null>(null);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  const [data, setData] = useState(DATA);
-=======
-=======
->>>>>>> Stashed changes
   const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  const removeRequest = (id: string) => {
+    setData(prev => prev.filter(item => item.id !== id));
+  };
 
   useEffect(() => {
     const loadRequests = async () => {
@@ -123,17 +28,11 @@ export default function RequestsScreen() {
       } catch (error) {
         console.error('Failed to load requests:', error);
         // Keep empty array if API fails
-      } finally {
-        setLoading(false);
       }
     };
 
     loadRequests();
   }, []);
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
   const styles = useMemo(() => StyleSheet.create({
     safe: {
@@ -245,9 +144,54 @@ export default function RequestsScreen() {
     },
   }), [colorScheme]);
 
-  const RequestItem = ({ item }: { item: any }) => {
+  const RequestItem = ({ item, onRemove }: { item: any; onRemove: (id: string) => void }) => {
     const additionalInfo = getAdditionalInfo(item.id);
     const isExpanded = expandedId === item.id;
+    const slideAnim = useRef(new Animated.Value(0)).current;
+
+    const animateOut = useCallback((direction: 'right' | 'left') => {
+      const toValue = direction === 'right' ? 1 : -1;
+      Animated.timing(slideAnim, {
+        toValue,
+        duration: 360,
+        useNativeDriver: false,
+      }).start(() => {
+        onRemove(item.id);
+      });
+    }, [slideAnim, onRemove, item.id]);
+
+    useEffect(() => {
+      const setupSocket = async () => {
+        try {
+          const token = await AsyncStorage.getItem('authToken');
+          if (token) {
+            // Get current user to get role, branch, section
+            const userResponse = await apiClient.getCurrentUser();
+            const user = userResponse.user;
+            await socketClient.connect(token, user.role, user.branch, user.section);
+            socketClient.on('request:finalized', (payload: { id: string; status: string }) => {
+              if (payload.id === item.id) {
+                animateOut(payload.status === 'approved' ? 'right' : 'left');
+              }
+            });
+            socketClient.on('request:deleted', (payload: { id: string }) => {
+              if (payload.id === item.id) {
+                onRemove(item.id);
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Socket setup failed:', error);
+        }
+      };
+
+      setupSocket();
+
+      return () => {
+        socketClient.off('request:finalized');
+        socketClient.off('request:deleted');
+      };
+    }, [item.id, onRemove, animateOut]);
 
     const onTapHandlerStateChange = (event: any) => {
       if (event.nativeEvent.state === State.END) {
@@ -269,7 +213,18 @@ export default function RequestsScreen() {
     };
 
     return (
-      <View style={styles.card}>
+      <Animated.View style={[styles.card, {
+        transform: [{
+          translateX: slideAnim.interpolate({
+            inputRange: [-1, 0, 1],
+            outputRange: [-1000, 0, 1000],
+          }),
+        }],
+        opacity: slideAnim.interpolate({
+          inputRange: [-1, 0, 1],
+          outputRange: [0, 1, 0],
+        }),
+      }]}>
         <PanGestureHandler onHandlerStateChange={onPanHandlerStateChange}>
           <TapGestureHandler onHandlerStateChange={onTapHandlerStateChange}>
             <View style={styles.cardRow}>
@@ -302,7 +257,7 @@ export default function RequestsScreen() {
             <Text style={styles.expandedText}>Student&apos;s Number: {additionalInfo.studentNumber}</Text>
           </View>
         )}
-      </View>
+      </Animated.View>
     );
   };
 
@@ -325,7 +280,7 @@ export default function RequestsScreen() {
       <FlatList
         data={data}
         keyExtractor={(i) => i.id}
-        renderItem={({ item }) => <RequestItem item={item} />}
+        renderItem={({ item }) => <RequestItem item={item} onRemove={removeRequest} />}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />

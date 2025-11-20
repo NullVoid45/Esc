@@ -17,7 +17,7 @@ export async function verifyQrToken(token: string) {
   if (doc.expiresAt < new Date()) {
     return { valid: false, reason: 'expired' };
   }
-  if (doc.request.status !== 'approved') {
+  if ((doc.request as any).status !== 'approved') {
     return { valid: false, reason: 'not_approved' };
   }
   // Optionally mark as used
@@ -25,10 +25,10 @@ export async function verifyQrToken(token: string) {
   return {
     valid: true,
     request: {
-      id: doc.request._id,
-      student: doc.request.student,
-      from: doc.request.from,
-      to: doc.request.to
+      id: (doc.request as any)._id,
+      student: (doc.request as any).student,
+      from: (doc.request as any).from,
+      to: (doc.request as any).to
     }
   };
 }

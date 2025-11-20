@@ -4,6 +4,7 @@ import User from '../models/User';
 import AuditLog from '../models/AuditLog';
 import { generateQrToken } from '../services/qr.service';
 import { authenticate, authorize, AuthRequest } from '../middleware/auth';
+import { finalizeAndScheduleDelete } from '../services/request.service';
 
 const router = Router();
 
@@ -31,11 +32,11 @@ router.post('/', authenticate, authorize('student'), async (req: AuthRequest, re
     await request.save();
 
     // Emit to mentor room
-    const socketService = global.socketService as any;
+    const socketService = (global as any).socketService;
     if (socketService && branch && section) {
       socketService.emitToRoom(`mentor:${branch}:${section}`, 'request:new', {
-        id: request._id,
-        studentName: req.user.name,
+        id: (request._id as any).toString(),
+        studentName: (request.student as any)?.name,
         reason,
         from: request.from,
         to: request.to
@@ -113,7 +114,7 @@ router.get('/:id', authenticate, async (req: AuthRequest, res) => {
     }
 
     // Check permissions
-    if (req.user.role === 'student' && request.student._id.toString() !== req.user._id.toString()) {
+    if (req.user.role === 'student' && (request.student as any)._id.toString() !== (req.user._id as any).toString()) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -148,7 +149,7 @@ router.post('/:id/approve', authenticate, authorize('mentor', 'hod'), async (req
     request.approvalChain[currentStepIndex].actedAt = new Date();
     request.approvalChain[currentStepIndex].comment = comment;
 
-    const socketService = global.socketService as any;
+    const socketService = (global as any).socketService;
 
     // Check approval logic
     if (role === 'mentor') {
@@ -156,30 +157,37 @@ router.post('/:id/approve', authenticate, authorize('mentor', 'hod'), async (req
       request.status = 'mentors_approved';
       if (socketService && request.branch) {
         socketService.emitToRoom(`hod:${request.branch}`, 'request:mentors_approved', {
-          id: request._id,
-          studentName: request.student?.name,
+          id: (request._id as any).toString(),
+          studentName: (request.student as any)?.name,
           reason: request.reason
         });
       }
     } else if (role === 'hod') {
       // HOD approved - generate QR and notify scanner/dev
       request.status = 'approved';
-      const qrToken = await generateQrToken(request._id.toString());
-      request.qrTokenId = qrToken._id;
+      const qrToken = await generateQrToken((request._id as any).toString());
+      request.qrTokenId = qrToken._id as any;
 
       if (socketService) {
         socketService.emitToRoom('scanner', 'request:approved', {
-          requestId: request._id,
+          requestId: (request._id as any).toString(),
           qrToken: qrToken.token,
-          studentName: request.student?.name,
+          studentName: (request.student as any)?.name,
           from: request.from,
           to: request.to
         });
         socketService.emitToRoom('dev', 'request:approved', {
-          requestId: request._id,
+          requestId: (request._id as any).toString(),
           qrToken: qrToken.token,
-          studentName: request.student?.name
+          studentName: (request.student as any)?.name
         });
+        // Emit finalized event to all clients
+        socketService.broadcast('request:finalized', {
+          id: (request._id as any).toString(),
+          status: request.status
+        });
+        // Schedule deletion
+        await finalizeAndScheduleDelete((request._id as any).toString(), socketService);
       }
     }
 
@@ -228,6 +236,17 @@ router.post('/:id/reject', authenticate, authorize('approver', 'security'), asyn
 
     await request.save();
 
+    // Emit finalized event
+    const socketService = (global as any).socketService;
+    if (socketService) {
+      socketService.emitToRelatedUsers('request:finalized', {
+        id: (request._id as any).toString(),
+        status: request.status
+      });
+      // Schedule deletion
+      await finalizeAndScheduleDelete((request._id as any).toString(), socketService);
+    }
+
     // Log action
     await AuditLog.create({
       actorId: req.user._id,
@@ -252,7 +271,7 @@ router.post('/:id/cancel', authenticate, authorize('student'), async (req: AuthR
       return res.status(404).json({ error: 'Request not found' });
     }
 
-    if (request.student._id.toString() !== req.user._id.toString()) {
+    if ((request.student as any)._id.toString() !== (req.user._id as any).toString()) {
       return res.status(403).json({ error: 'Access denied' });
     }
 

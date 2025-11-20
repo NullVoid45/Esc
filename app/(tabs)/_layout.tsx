@@ -13,14 +13,7 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
         headerTitle: '',
->>>>>>> Stashed changes
-=======
-        headerTitle: '',
->>>>>>> Stashed changes
       }}>
       <Tabs.Screen
         name="requests"

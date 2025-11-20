@@ -1,17 +1,10 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
-import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 
+import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
-export default function LoadingScreen() {
-  useEffect(() => {
-    setTimeout(() => {
-      router.replace('/requests');
-    }, 2000);
-  }, []);
-
+export default function HomeScreen() {
   return (
     <ThemedView style={styles.container}>
       <Image
@@ -27,11 +20,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 20,
+    padding: 20,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 20,
   },
   hitamLogo: {
     height: 500,
     width: 500,
     resizeMode: 'contain',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

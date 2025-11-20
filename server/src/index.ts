@@ -43,7 +43,7 @@ app.get('/health', (req, res) => {
 });
 
 // Make socket service available globally for routes
-global.socketService = socketService;
+(global as any).socketService = socketService;
 
 // Database connection
 mongoose.connect(config.MONGO_URI)
@@ -66,7 +66,7 @@ server.listen(PORT, () => {
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
   server.close(() => {
-    mongoose.connection.close(false, () => {
+    mongoose.connection.close().then(() => {
       console.log('Process terminated');
       process.exit(0);
     });
@@ -76,7 +76,7 @@ process.on('SIGTERM', () => {
 process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully');
   server.close(() => {
-    mongoose.connection.close(false, () => {
+    mongoose.connection.close().then(() => {
       console.log('Process terminated');
       process.exit(0);
     });
